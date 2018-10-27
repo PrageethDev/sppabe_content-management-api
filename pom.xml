@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>openpulse.sppabe</groupId>
+	<artifactId>openpulse.sppabe.content-management-api</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>content-management-api</name>
+	<description>api for content management</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.0.2.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>appassembler-maven-plugin</artifactId>
+                <version>1.0</version>
+                <configuration>
+                    <repoPath>lib</repoPath>
+                    <repositoryLayout>flat</repositoryLayout>
+                    <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
+                    <assembleDirectory>${jsw.assemble.dir}</assembleDirectory>
+
+                    <defaultJvmSettings>
+                        <initialMemorySize>64M</initialMemorySize>
+                        <maxMemorySize>128M</maxMemorySize>
+                    </defaultJvmSettings>
+
+                    <daemons>
+                        <daemon>
+                            <id>content-management-api</id>
+                            <mainClass>content-management-api.ContentManagementApiApplication</mainClass>
+
+                            <platforms>
+                                <platform>jsw</platform>
+                            </platforms>
+
+                            <generatorConfigurations>
+                                <generatorConfiguration>
+                                    <generator>jsw</generator>
+                                    <configuration>
+                                        <property>
+                                            <name>wrapper.java.mainclass</name>
+                                            <value>openpulse.sppabe.contentmanagementapi.ContentManagementApiApplication</value>
+                                        </property>
+                                        <property>
+                                            <name>configuration.directory.in.classpath.first</name>
+                                            <value>conf</value>
+                                        </property>
+                                        <property>
+                                            <name>set.default.REPO_DIR</name>
+                                            <value>lib</value>
+                                        </property>
+                                        <property>
+                                            <name>wrapper.logfile</name>
+                                            <value>logs/wrapper.log</value>
+                                        </property>
+                                    </configuration>
+
+                                    <includes>
+                                        <include>linux-x86-64</include>
+                                    </includes>
+                                </generatorConfiguration>
+                            </generatorConfigurations>
+                        </daemon>
+                    </daemons>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>generate-daemons</goal>
+                            <goal>create-repository</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.1</version>
+                <executions>
+                    <execution>
+                        <id>config</id>
+                        <phase>install</phase>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="target/content-management-api/logs" />
+                                <copy todir="target/content-management-api/bin">
+                                    <fileset dir="${jsw.assemble.dir}/bin" />
+                                </copy>
+                                <copy todir="target/content-management-api/lib">
+                                    <fileset dir="${jsw.assemble.dir}/lib" />
+                                </copy>
+                                <copy todir="target/content-management-api/conf">
+                                    <fileset dir="${jsw.assemble.dir}/conf" />
+                                </copy>
+                                <copy todir="target/content-management-api/conf">
+                                    <fileset dir="src/main/resources" />
+                                </copy>
+                                <chmod dir="target/content-management-api/bin" perm="777" includes="**/**" />
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.1</version>
+                <configuration>
+                    <finalName>${project.artifactId}</finalName>
+                    <descriptors>
+                        <descriptor>src/main/assembly/distribution.xml</descriptor>
+                    </descriptors>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+    </build>
+
+
+	<dependencies>
+        <!-- https://mvnrepository.com/artifact/tanukisoft/wrapper -->
+        <dependency>
+            <groupId>tanukisoft</groupId>
+            <artifactId>wrapper</artifactId>
+            <version>3.2.3</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/log4j/log4j -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+        </dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
+    </dependencies>
+
+
+    <properties>
+        <java.version>1.8</java.version>
+        <log4j.version>2.10.0</log4j.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <jsw.assemble.dir>target/generated-resources/appassembler/jsw/content-management-api</jsw.assemble.dir>
+    </properties>
+
+
+</project>

@@ -1,0 +1,15 @@
+package apexquo.sppabe.contentmanagementapi.controllers;
+
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class APIController {
+
+    @RequestMapping("/items")
+    public String getAllItems(){
+        return "All Items";
+    }
+
+
+}
